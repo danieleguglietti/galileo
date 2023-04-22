@@ -3,6 +3,14 @@ project(Galileo)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(sources ${sources} src/main.cpp)
+add_subdirectory(include/raylib)
 
-add_executable(Galileo ${sources})
+set(sources ${sources} src/main.cpp)
+add_executable(${PROJECT_NAME} ${sources})
+target_link_libraries(${PROJECT_NAME} raylib)
+
+if (APPLE)
+    target_link_libraries(${PROJECT_NAME} "-framework IOKit")
+    target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
+    target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
+endif()
