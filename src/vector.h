@@ -148,6 +148,49 @@ namespace galileo {
         explicit operator Vector4() const {
             return Vector4{static_cast<float>(x), static_cast<float>(y), 0, 0};
         }
+
+        // Mixed Operators Overload
+        _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<4, T> &rhs) const {
+            return vector<4, T>{x + rhs.x, y + rhs.y, rhs.z, rhs.w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<4, T> &rhs) const {
+            return vector<4, T>{x - rhs.x, y - rhs.y, -rhs.z, -rhs.w};
+        }
+
+        _NODISCARD _CONSTEXPR20 T operator*(const vector<4, T> &rhs) const {
+            return x * rhs.x + y * rhs.y;
+        }
+
+        _NODISCARD _CONSTEXPR20 vector<3, T> operator+(const vector<3, T> &rhs) const {
+            return vector<3, T>{x + rhs.x, y + rhs.y, rhs.z};
+        }
+
+        _NODISCARD _CONSTEXPR20 vector<3, T> operator-(const vector<3, T> &rhs) const {
+            return vector<3, T>{x - rhs.x, y - rhs.y, -rhs.z};
+        }
+
+        _NODISCARD _CONSTEXPR20 T operator*(const vector<2, T> &rhs) {
+            return x * rhs.x + y * rhs.y;
+        }
+
+        // Cross Product
+        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(vec_const_reference rhs) const {
+            return vector<3, T>{0, 0, x * rhs.y - y * rhs.x};
+        }
+
+        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(const vector<3, T> &rhs) const {
+            return vector<3, T>{0, 0, x * rhs.y - y * rhs.x};
+        }
+
+        // Comparison Operators
+        _NODISCARD _CONSTEXPR20 bool operator==(vec_const_reference rhs) const {
+            return x == rhs.x && y == rhs.y;
+        }
+
+        _NODISCARD _CONSTEXPR20 bool operator!=(vec_const_reference rhs) const {
+            return x != rhs.x || y != rhs.y;
+        }
     };
 
     template<arithmetic T>
@@ -285,6 +328,49 @@ namespace galileo {
 
         explicit operator Vector4() const {
             return Vector4{static_cast<float>(x), static_cast<float>(y), static_cast<float>(y), 0};
+        }
+
+        // Mixed Operators Overload
+        _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<4, T> &rhs) {
+            return vector<4, T>{x + rhs.x, y + rhs.y, z + rhs.z, rhs.w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<4, T> &rhs) {
+            return vector<4, T>{x - rhs.x, y - rhs.y, z - rhs.z, -rhs.w};
+        }
+
+        _NODISCARD _CONSTEXPR20 T operator*(const vector<4, T> &rhs) {
+            return x * rhs.x + y * rhs.y + z * rhs.z;
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator+(const vector<2, T> &rhs) {
+            return vector<3, T>{x + rhs.x, y + rhs.y, z};
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator-(const vector<2, T> &rhs) {
+            return vector<3, T>{x - rhs.x, y - rhs.y, z};
+        }
+
+        _NODISCARD _CONSTEXPR20 T operator*(const vector<2, T> &rhs) {
+            return x * rhs.x + y * rhs.y;
+        }
+
+        // Cross Product
+        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(vec_const_reference rhs) const {
+            return vector<3, T>{y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x};
+        }
+
+        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(const vector<2, T> &rhs) const {
+            return vector<3, T>{0, 0, x * rhs.y - y * rhs.x};
+        }
+
+        // Comparison Operators
+        _NODISCARD _CONSTEXPR20 bool operator==(vec_const_reference rhs) const {
+            return x == rhs.x && y == rhs.y && z == rhs.z;
+        }
+
+        _NODISCARD _CONSTEXPR20 bool operator!=(vec_const_reference rhs) const {
+            return x != rhs.x || y != rhs.y || z != rhs.z;
         }
     };
 
@@ -433,98 +519,41 @@ namespace galileo {
         explicit operator Vector4() const {
             return Vector4{static_cast<float>(x), static_cast<float>(y), static_cast<float>(y), static_cast<float>(w)};
         }
+
+        // Mixed Operator Overload
+        _NODISCARD _CONSTEXPR20 vec operator+(const vector<3, T> &rhs) {
+            return vector<4, T>{x + rhs.x, y + rhs.y, z + rhs.z, w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator+(const vector<2, T> &rhs) {
+            return vector<4, T>{x + rhs.x, y + rhs.y, z, w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator-(const vector<3, T> &rhs) {
+            return vector<4, T>{x - rhs.x, y - rhs.y, z - rhs.z, w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator-(const vector<2, T> &rhs) {
+            return vector<4, T>{x - rhs.x, y - rhs.y, z, w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator*(const vector<3, T> &rhs) {
+            return vector<4, T>{x * rhs.x, y * rhs.y, z * rhs.z, w};
+        }
+
+        _NODISCARD _CONSTEXPR20 vec operator*(const vector<2, T> &rhs) {
+            return vector<4, T>{x * rhs.x, y * rhs.y, z, w};
+        }
+
+        // Comparison Operators
+        _NODISCARD _CONSTEXPR20 bool operator==(vec_const_reference rhs) const {
+            return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
+        }
+
+        _NODISCARD _CONSTEXPR20 bool operator!=(vec_const_reference rhs) const {
+            return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w;
+        }
     };
-
-    // Mixed Operator Overload
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<3, T> operator+(const vector<3, T> &lhs, const vector<2, T> &rhs) {
-        return vector<3, T>{lhs.x + rhs.x, lhs.y + rhs.y, lhs.z};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<3, T> operator+(const vector<2, T> &lhs, const vector<3, T> &rhs) {
-        return vector<3, T>{rhs.x + lhs.x, rhs.y + lhs.y, rhs.z};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<3, T> &lhs, const vector<4, T> &rhs) {
-        return vector<3, T>{lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, rhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<4, T> &lhs, const vector<3, T> &rhs) {
-        return vector<3, T>{rhs.x + lhs.x, rhs.y + lhs.y, rhs.z + rhs.z, lhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<2, T> &lhs, const vector<4, T> &rhs) {
-        return vector<3, T>{lhs.x + rhs.x, lhs.y + rhs.y, rhs.z, rhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<4, T> &lhs, const vector<2, T> &rhs) {
-        return vector<3, T>{rhs.x + lhs.x, rhs.y + lhs.y, lhs.z, lhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<3, T> operator-(const vector<3, T> &lhs, const vector<2, T> &rhs) {
-        return vector<3, T>{lhs.x + rhs.x, lhs.y + rhs.y, lhs.z};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<3, T> operator-(const vector<2, T> &lhs, const vector<3, T> &rhs) {
-        return vector<3, T>{rhs.x - lhs.x, rhs.y - lhs.y, -rhs.z};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<3, T> &lhs, const vector<4, T> &rhs) {
-        return vector<3, T>{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, -rhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<4, T> &lhs, const vector<3, T> &rhs) {
-        return vector<3, T>{rhs.x - lhs.x, rhs.y - lhs.y, rhs.z - rhs.z, lhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<2, T> &lhs, const vector<4, T> &rhs) {
-        return vector<3, T>{lhs.x - rhs.x, lhs.y - rhs.y, -rhs.z, -rhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<4, T> &lhs, const vector<2, T> &rhs) {
-        return vector<3, T>{rhs.x - lhs.x, rhs.y - lhs.y, lhs.z, lhs.w};
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 T operator*(const vector<3, T> &lhs, const vector<2, T> &rhs) {
-        return lhs.x * rhs.x + lhs.y * rhs.y;
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 T operator*(const vector<2, T> &lhs, const vector<3, T> &rhs) {
-        return lhs.x * rhs.x + lhs.y * rhs.y;
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 T operator*(const vector<3, T> &lhs, const vector<4, T> &rhs) {
-        return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 T operator*(const vector<4, T> &lhs, const vector<3, T> &rhs) {
-        return rhs.x * lhs.x + rhs.y * lhs.y + rhs.z * rhs.z;
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 T operator*(const vector<2, T> &lhs, const vector<4, T> &rhs) {
-        return lhs.x * rhs.x + lhs.y * rhs.y;
-    }
-
-    template<arithmetic T>
-    _NODISCARD _CONSTEXPR20 T operator*(const vector<4, T> &lhs, const vector<2, T> &rhs) {
-        return rhs.x * lhs.x + rhs.y * lhs.y;
-    }
 
     // To String Functions
 

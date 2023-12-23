@@ -22,12 +22,30 @@ int main() {
     static const vec2i o{WIDTH/2, HEIGHT/2};
 
     // Vettore
-    vec3i v = i * 10 + j * 5 + k * 2;
+    auto v = i * 10 + j * 5 + k * 2;
+
+    auto w = i * (v * i);
+
+    std::cout << v.magnitude();
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         {
             ClearBackground(WHITE);
+
+            DrawLineEx(
+                    static_cast<Vector2>(o),
+                    static_cast<Vector2>(v * 50 + o),
+                    2.f,
+                    BLACK
+            );
+
+            DrawLineEx(
+                    static_cast<Vector2>(o),
+                    static_cast<Vector2>(w * 50 + o),
+                    2.f,
+                    BLACK
+            );
 
             DrawLineEx(
                     static_cast<Vector2>(o),
@@ -41,13 +59,6 @@ int main() {
                     static_cast<Vector2>(j * 50 + o),
                     2.f,
                     BLUE
-            );
-
-            DrawLineEx(
-                    static_cast<Vector2>(o),
-                    static_cast<Vector2>(v * 50 + o),
-                    2.f,
-                    BLACK
             );
         }
         EndDrawing();
