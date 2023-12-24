@@ -1,65 +1,61 @@
-#include <iostream>
-#include <raylib.h>
 #include <format>
+#include <iostream>
+
+#include <raylib.h>
 
 #include "vector.h"
 
 constexpr auto WIDTH = 1280;
 constexpr auto HEIGHT = 720;
 
-using galileo::vec2i;
-using galileo::vec3i;
+using galileo::vec2f;
+using galileo::vec3f;
+
+Camera3D init_camera(Vector3 o, Vector3 target);
 
 int main() {
     InitWindow(1280, 720, "Galileo");
 
     // Base Canonica :)
-    static const vec3i i{1, 0, 0};
-    static const vec3i j{0, 1, 0};
-    static const vec3i k{0, 0, 1};
+    static const vec3f i{1.f, 0.f, 0.f};
+    static const vec3f j{0.f, 1.f, 0.f};
+    static const vec3f k{0.f, 0.f, 1.f};
 
     // Origine
-    static const vec2i o{WIDTH/2, HEIGHT/2};
+    static const vec3f o{0.f, 0.f, 0.f};
 
     // Vettore
-    auto v = i * 10 + j * 5 + k * 2;
+    static const auto v = i * 2 + j * 3 + k * 5;
+    static const auto w = i * 3 + j * 2 + k * 1;
 
-    auto w = i * (v * i);
+    static const auto d = w - v;
 
-    std::cout << v.magnitude();
+    // Camera
+    Camera3D camera = init_camera(static_cast<Vector3>(o + vec3f{10.f}), static_cast<Vector3>(o));
+
+    DisableCursor();
 
     while (!WindowShouldClose()) {
+        UpdateCamera(&camera, CAMERA_ORBITAL);
+
         BeginDrawing();
         {
-            ClearBackground(WHITE);
+            ClearBackground(RAYWHITE);
 
-            DrawLineEx(
-                    static_cast<Vector2>(o),
-                    static_cast<Vector2>(v * 50 + o),
-                    2.f,
-                    BLACK
-            );
+            BeginMode3D(camera);
+            {
+                DrawGrid(100, 1.0f);
 
-            DrawLineEx(
-                    static_cast<Vector2>(o),
-                    static_cast<Vector2>(w * 50 + o),
-                    2.f,
-                    BLACK
-            );
+                DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + v), BLACK);
+                DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + w), BLACK);
 
-            DrawLineEx(
-                    static_cast<Vector2>(o),
-                    static_cast<Vector2>(i * 50 + o),
-                    2.f,
-                    RED
-            );
+                DrawLine3D(static_cast<Vector3>(o + v), static_cast<Vector3>(v + d), RED);
 
-            DrawLineEx(
-                    static_cast<Vector2>(o),
-                    static_cast<Vector2>(j * 50 + o),
-                    2.f,
-                    BLUE
-            );
+                DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + i), RED);
+                DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + j), GREEN);
+                DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + k), BLUE);
+            }
+            EndMode3D();
         }
         EndDrawing();
     }
@@ -67,4 +63,18 @@ int main() {
     CloseWindow();
 
     return 0;
+}
+
+Camera3D init_camera(Vector3 o, Vector3 target) {
+    Camera3D camera = { 0 };
+
+    camera.position = o;
+    camera.target = target;
+
+    camera.up = {0.f, 1.f, 0.f};
+    camera.fovy = 45.f;
+
+    camera.projection = CAMERA_PERSPECTIVE;
+
+    return camera;
 }
