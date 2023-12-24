@@ -48,7 +48,6 @@ int main() {
 
                 DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + v), BLACK);
                 DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + w), BLACK);
-
                 DrawLine3D(static_cast<Vector3>(o + v), static_cast<Vector3>(v + d), RED);
 
                 DrawLine3D(static_cast<Vector3>(o), static_cast<Vector3>(o + i), RED);
