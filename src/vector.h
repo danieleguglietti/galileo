@@ -1,255 +1,187 @@
-#ifndef GALILEO_VECTOR_H
-#define GALILEO_VECTOR_H
+#ifndef VECTOR_H
+#define VECTOR_H
 
-#include "concepts.h"
+#pragma once
 
-namespace galileo {
-    using galileo::arithmetic;
+#include "utils.h"
 
-    template<size_t N, arithmetic T>
-    struct vector;
+GALILEO_BEGIN
+    template<concepts::arithmetic T, size_t N>
+    struct vector {
+    };
 
-    using vec2i = vector<2, int>;
-    using vec3i = vector<3, int>;
-    using vec4i = vector<4, int>;
+    // Int Vectors
+    using vec2i = vector<int, 2>;
+    using vec3i = vector<int, 3>;
+    using vec4i = vector<int, 4>;
 
-    using vec2f = vector<2, float>;
-    using vec3f = vector<3, float>;
-    using vec4f = vector<4, float>;
+    // Float Vectors
+    using vec2f = vector<float, 2>;
+    using vec3f = vector<float, 3>;
+    using vec4f = vector<float, 4>;
 
-    using vec2d = vector<2, double>;
-    using vec3d = vector<3, double>;
-    using vec4d = vector<4, double>;
+    // Double Vectors
+    using vec2d = vector<double, 2>;
+    using vec3d = vector<double, 3>;
+    using vec4d = vector<double, 4>;
 
-    template<arithmetic T>
-    struct vector<2, T> {
+    //
+    // STRUCT SPECIALIZATIONS
+    //
+
+    template<concepts::arithmetic T>
+    struct vector<T, 2> {
     public:
         using value_type = T;
-        using size_type = size_t;
-        using reference = value_type &;
-        using const_reference = const value_type &;
-        using vec = vector<2, value_type>;
-        using vec_reference = vec &;
-        using vec_const_reference = const vec &;
+        using vec = vector;
+
+        using ref = T &;
+        using cref = T const &;
+        using ptr = T *;
+
     public:
-        value_type x;
-        value_type y;
+        T x;
+        T y;
 
-        const size_type size = 2;
-    public:
-        explicit vector() = default;
+        explicit vector(): x{0}, y{0} {
+        }
 
-        explicit vector(const_reference xy) :
-                x{xy}, y{xy} {}
+        vector(value_type x, value_type y): x{x}, y{y} {
+        }
 
-        explicit vector(const_reference x, const_reference y) :
-                x{x}, y{y} {}
+        // Copy constructor
+        vector(vec const &rhs): x{rhs.x}, y{rhs.y} {
+        }
 
-        // Copy Semantics
-        vector(vec_reference rhs) {
-            x = rhs.x;
-            y = rhs.y;
-        };
+        // Move constructor
+        vector(vec &&rhs) noexcept: x{std::move(rhs.x)}, y{std::move(rhs.y)} {
+        }
 
-        vec_reference operator=(vec_const_reference rhs) {
+        // Copy assignment
+        vec &operator=(vec const &rhs) {
             x = rhs.x;
             y = rhs.y;
 
             return *this;
-        };
+        }
 
-        // Move Semantics
-        vector(vec &&rhs) noexcept {
-            x = std::move(rhs.x);
-            y = std::move(rhs.y);
-        };
-
-        vec_reference operator=(vec &&rhs) noexcept {
+        // Move assignment
+        vec &operator=(vec &&rhs) noexcept {
             x = std::move(rhs.x);
             y = std::move(rhs.y);
 
             return *this;
-        };
+        }
 
-        // Vector Operations
-        vec_reference operator+=(vec_const_reference rhs) {
+        // Vector Algebra
+        vec &operator+=(vec const &rhs) {
             x += rhs.x;
             y += rhs.y;
 
             return *this;
         }
 
-        vec_reference operator-=(vec_const_reference rhs) {
+        vec &operator-=(vec const &rhs) {
             x -= rhs.x;
             y -= rhs.y;
 
             return *this;
         }
 
-        vec_reference operator*=(const_reference scalar) {
-            x *= scalar;
-            y *= scalar;
+        vec &operator*=(value_type rhs) {
+            x *= rhs;
+            y *= rhs;
 
             return *this;
         }
 
-        vec_reference operator/(const_reference scalar) {
-            x /= scalar;
-            y /= scalar;
+        vec &operator/=(value_type rhs) {
+            x /= rhs;
+            y /= rhs;
 
             return *this;
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator-() const {
-            return vec{-x, -y};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator+() const {
-            return vec{x, y};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator+(vec_const_reference rhs) const {
+        vec &operator+(vec const &rhs) const {
             return vec{x + rhs.x, y + rhs.y};
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator-(vec_const_reference rhs) const {
+        vec &operator-(vec const &rhs) const {
             return vec{x - rhs.x, y - rhs.y};
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator*(const_reference scalar) const {
-            return vec{x * scalar, y * scalar};
+        vec &operator*(value_type rhs) const {
+            return vec{x * rhs, y * rhs};
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator/(const_reference scalar) const {
-            return vec{x / scalar, y / scalar};
+        vec &operator/(value_type rhs) const {
+            return vec{x / rhs, y / rhs};
         }
 
-        _NODISCARD _CONSTEXPR20 value_type operator*(vec_const_reference rhs) const {
+        value_type operator*(vec const &rhs) const {
             return x * rhs.x + y * rhs.y;
         }
 
-        _NODISCARD _CONSTEXPR20 double magnitude() const {
+        // Magnitude
+        _NODISCARD double magnitude() const {
             return std::sqrt(x * x + y * y);
         }
 
-        _NODISCARD _CONSTEXPR20 vec normalize() const {
-            return *this / magnitude();
-        }
-
-        // Cast Overload
+        // Casting
         explicit operator Vector2() const {
             return Vector2{static_cast<float>(x), static_cast<float>(y)};
         }
-
-        explicit operator Vector3() const {
-            return Vector3{static_cast<float>(x), static_cast<float>(y), 0};
-        }
-
-        explicit operator Vector4() const {
-            return Vector4{static_cast<float>(x), static_cast<float>(y), 0, 0};
-        }
-
-        // Mixed Operators Overload
-        _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<4, T> &rhs) const {
-            return vector<4, T>{x + rhs.x, y + rhs.y, rhs.z, rhs.w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<4, T> &rhs) const {
-            return vector<4, T>{x - rhs.x, y - rhs.y, -rhs.z, -rhs.w};
-        }
-
-        _NODISCARD _CONSTEXPR20 T operator*(const vector<4, T> &rhs) const {
-            return x * rhs.x + y * rhs.y;
-        }
-
-        _NODISCARD _CONSTEXPR20 vector<3, T> operator+(const vector<3, T> &rhs) const {
-            return vector<3, T>{x + rhs.x, y + rhs.y, rhs.z};
-        }
-
-        _NODISCARD _CONSTEXPR20 vector<3, T> operator-(const vector<3, T> &rhs) const {
-            return vector<3, T>{x - rhs.x, y - rhs.y, -rhs.z};
-        }
-
-        _NODISCARD _CONSTEXPR20 T operator*(const vector<2, T> &rhs) {
-            return x * rhs.x + y * rhs.y;
-        }
-
-        // Cross Product
-        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(vec_const_reference rhs) const {
-            return vector<3, T>{0, 0, x * rhs.y - y * rhs.x};
-        }
-
-        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(const vector<3, T> &rhs) const {
-            return vector<3, T>{0, 0, x * rhs.y - y * rhs.x};
-        }
-
-        // Comparison Operators
-        _NODISCARD _CONSTEXPR20 bool operator==(vec_const_reference rhs) const {
-            return x == rhs.x && y == rhs.y;
-        }
-
-        _NODISCARD _CONSTEXPR20 bool operator!=(vec_const_reference rhs) const {
-            return x != rhs.x || y != rhs.y;
-        }
     };
 
-    template<arithmetic T>
-    struct vector<3, T> {
+    template<concepts::arithmetic T>
+    struct vector<T, 3> {
     public:
         using value_type = T;
-        using size_type = size_t;
-        using reference = value_type &;
-        using const_reference = const value_type &;
-        using vec = vector<3, value_type>;
-        using vec_reference = vec &;
-        using vec_const_reference = const vec &;
+        using vec = vector;
+
+        using ref = T &;
+        using cref = T const &;
+        using ptr = T *;
+
     public:
-        value_type x;
-        value_type y;
-        value_type z;
+        T x;
+        T y;
+        T z;
 
-        const size_type size = 3;
-    public:
-        explicit vector() = default;
+        explicit vector(): x{0}, y{0}, z{0} {
+        }
 
-        explicit vector(const_reference xyz) :
-                x{xyz}, y{xyz}, z{xyz} {}
+        vector(value_type x, value_type y, value_type z): x{x}, y{y}, z{z} {
+        }
 
-        explicit vector(const_reference x, const_reference y, const_reference z) :
-                x{x}, y{y}, z{z} {}
+        // Copy constructor
+        vector(vec const &rhs): x{rhs.x}, y{rhs.y}, z{rhs.z} {
+        }
 
-        // Copy Semantics
-        vector(vec_reference rhs) {
-            x = rhs.x;
-            y = rhs.y;
-            z = rhs.z;
-        };
+        // Move constructor
+        vector(vec &&rhs) noexcept: x{std::move(x)}, y{std::move(y)}, z{std::move(z)} {
+        }
 
-        vec_reference operator=(vec_const_reference rhs) {
+        // Copy assignment
+        vec &operator=(vec const &rhs) {
             x = rhs.x;
             y = rhs.y;
             z = rhs.z;
 
             return *this;
-        };
+        }
 
-        // Move Semantics
-        vector(vec &&rhs) noexcept {
-            x = std::move(rhs.x);
-            y = std::move(rhs.y);
-            z = std::move(rhs.z);
-        };
-
-        vec_reference operator=(vec &&rhs) noexcept {
+        // Move assignment
+        vec &operator=(vec &&rhs) noexcept {
             x = std::move(rhs.x);
             y = std::move(rhs.y);
             z = std::move(rhs.z);
 
             return *this;
-        };
+        }
 
-        // Vector Operations
-        vec_reference operator+=(vec_const_reference rhs) {
+        // Vector Algebra
+        vec &operator+=(vec const &rhs) {
             x += rhs.x;
             y += rhs.y;
             z += rhs.z;
@@ -257,7 +189,11 @@ namespace galileo {
             return *this;
         }
 
-        vec_reference operator-=(vec_const_reference rhs) {
+        vec &operator+(vec const &rhs) const {
+            return vec(x + rhs.x, y + rhs.y, z + rhs.z);
+        }
+
+        vec &operator-=(vec const &rhs) {
             x -= rhs.x;
             y -= rhs.y;
             z -= rhs.z;
@@ -265,177 +201,101 @@ namespace galileo {
             return *this;
         }
 
-        vec_reference operator*=(const_reference scalar) {
-            x *= scalar;
-            y *= scalar;
-            z *= scalar;
+        vec &operator-(vec const &rhs) const {
+            return vec(x - rhs.x, y - rhs.y, z - rhs.z);
+        }
+
+        vec &operator*=(value_type rhs) {
+            x *= rhs;
+            y *= rhs;
+            z *= rhs;
 
             return *this;
         }
 
-        vec_reference operator/(const_reference scalar) {
-            x /= scalar;
-            y /= scalar;
-            z /= scalar;
+        vec &operator*(value_type rhs) const {
+            return vec(x * rhs, y * rhs, z * rhs);
+        }
+
+        vec &operator/=(value_type rhs) {
+            x /= rhs;
+            y /= rhs;
+            z /= rhs;
 
             return *this;
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator-() const {
-            return vec{-x, -y, -z};
+        vec &operator/(value_type rhs) const {
+            return vec(x / rhs, y / rhs, z / rhs);
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator+() const {
-            return vec{x, y, z};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator+(vec_const_reference rhs) const {
-            return vec{x + rhs.x, y + rhs.y, z + rhs.z};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator-(vec_const_reference rhs) const {
-            return vec{x - rhs.x, y - rhs.y, z - rhs.z};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator*(const_reference scalar) const {
-            return vec{x * scalar, y * scalar, z * scalar};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator/(const_reference scalar) const {
-            return vec{x / scalar, y / scalar, z / scalar};
-        }
-
-        _NODISCARD _CONSTEXPR20 value_type operator*(vec_const_reference rhs) const {
+        value_type operator*(vec const &rhs) const {
             return x * rhs.x + y * rhs.y + z * rhs.z;
         }
 
-        _NODISCARD _CONSTEXPR20 double magnitude() const {
+        // Magnitude
+        _NODISCARD double magnitude() const {
             return std::sqrt(x * x + y * y + z * z);
         }
 
-        _NODISCARD _CONSTEXPR20 vec normalize() const {
-            return *this / magnitude();
-        }
-
-        // Cast Overload
-        explicit operator Vector2() const {
-            return Vector2{static_cast<float>(x), static_cast<float>(y)};
-        }
-
+        // Casting
         explicit operator Vector3() const {
             return Vector3{static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
         }
-
-        explicit operator Vector4() const {
-            return Vector4{static_cast<float>(x), static_cast<float>(y), static_cast<float>(y), 0};
-        }
-
-        // Mixed Operators Overload
-        _NODISCARD _CONSTEXPR20 vector<4, T> operator+(const vector<4, T> &rhs) {
-            return vector<4, T>{x + rhs.x, y + rhs.y, z + rhs.z, rhs.w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vector<4, T> operator-(const vector<4, T> &rhs) {
-            return vector<4, T>{x - rhs.x, y - rhs.y, z - rhs.z, -rhs.w};
-        }
-
-        _NODISCARD _CONSTEXPR20 T operator*(const vector<4, T> &rhs) {
-            return x * rhs.x + y * rhs.y + z * rhs.z;
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator+(const vector<2, T> &rhs) {
-            return vector<3, T>{x + rhs.x, y + rhs.y, z};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator-(const vector<2, T> &rhs) {
-            return vector<3, T>{x - rhs.x, y - rhs.y, z};
-        }
-
-        _NODISCARD _CONSTEXPR20 T operator*(const vector<2, T> &rhs) {
-            return x * rhs.x + y * rhs.y;
-        }
-
-        // Cross Product
-        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(vec_const_reference rhs) const {
-            return vector<3, T>{y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x};
-        }
-
-        _NODISCARD _CONSTEXPR20 vector<3, T> operator^(const vector<2, T> &rhs) const {
-            return vector<3, T>{0, 0, x * rhs.y - y * rhs.x};
-        }
-
-        // Comparison Operators
-        _NODISCARD _CONSTEXPR20 bool operator==(vec_const_reference rhs) const {
-            return x == rhs.x && y == rhs.y && z == rhs.z;
-        }
-
-        _NODISCARD _CONSTEXPR20 bool operator!=(vec_const_reference rhs) const {
-            return x != rhs.x || y != rhs.y || z != rhs.z;
-        }
     };
 
-    template<arithmetic T>
-    struct vector<4, T> {
+    template<concepts::arithmetic T>
+    struct vector<T, 4> {
     public:
         using value_type = T;
-        using size_type = size_t;
-        using reference = value_type &;
-        using const_reference = const value_type &;
-        using vec = vector<4, value_type>;
-        using vec_reference = vec &;
-        using vec_const_reference = const vec &;
+        using vec = vector;
+
+        using ref = T &;
+        using cref = T const &;
+        using ptr = T *;
+
     public:
-        value_type x;
-        value_type y;
-        value_type z;
-        value_type w;
+        T x;
+        T y;
+        T z;
+        T w;
 
-        const size_type size = 4;
-    public:
-        explicit vector() = default;
+        explicit vector(): x{0}, y{0}, z{0}, w{0} {
+        }
 
-        explicit vector(const_reference xyzw) :
-                x{xyzw}, y{xyzw}, z{xyzw} {}
+        vector(value_type x, value_type y, value_type z, value_type w): x{x}, y{y}, z{z}, w{w} {
+        }
 
-        explicit vector(const_reference x, const_reference y, const_reference z, const_reference w) :
-                x{x}, y{y}, z{z}, w{w} {}
+        // Copy constructor
+        vector(vec const &rhs): x{rhs.x}, y{rhs.y}, z{rhs.z}, w{rhs.w} {
+        }
 
-        // Copy Semantics
-        vector(vec_reference rhs) {
-            x = rhs.x;
-            y = rhs.y;
-            z = rhs.z;
-            w = rhs.w;
-        };
+        // Move constructor
+        vector(vec &&rhs) noexcept: x{std::move(x)}, y{std::move(y)}, z{std::move(z)}, w{std::move(w)} {
+        }
 
-        vec_reference operator=(vec_const_reference rhs) {
+        // Copy assignment
+        vec &operator=(vec const &rhs) {
             x = rhs.x;
             y = rhs.y;
             z = rhs.z;
             w = rhs.w;
 
             return *this;
-        };
+        }
 
-        // Move Semantics
-        vector(vec &&rhs) noexcept {
-            x = std::move(rhs.x);
-            y = std::move(rhs.y);
-            z = std::move(rhs.z);
-            w = std::move(rhs.w);
-        };
-
-        vec_reference operator=(vec &&rhs) noexcept {
+        // Move assignment
+        vec &operator=(vec &&rhs) noexcept {
             x = std::move(rhs.x);
             y = std::move(rhs.y);
             z = std::move(rhs.z);
             w = std::move(rhs.w);
 
             return *this;
-        };
+        }
 
-        // Vector Operations
-        vec_reference operator+=(vec_const_reference rhs) {
+        // Vector Algebra
+        vec &operator+=(vec const &rhs) {
             x += rhs.x;
             y += rhs.y;
             z += rhs.z;
@@ -444,7 +304,11 @@ namespace galileo {
             return *this;
         }
 
-        vec_reference operator-=(vec_const_reference rhs) {
+        vec &operator+(vec const &rhs) const {
+            return vec(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+        }
+
+        vec &operator-=(vec const &rhs) {
             x -= rhs.x;
             y -= rhs.y;
             z -= rhs.z;
@@ -453,160 +317,91 @@ namespace galileo {
             return *this;
         }
 
-        vec_reference operator*=(const_reference scalar) {
-            x *= scalar;
-            y *= scalar;
-            z *= scalar;
-            w *= scalar;
+        vec &operator-(vec const &rhs) const {
+            return vec(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+        }
+
+        vec &operator*=(value_type rhs) {
+            x *= rhs;
+            y *= rhs;
+            z *= rhs;
+            w *= rhs;
 
             return *this;
         }
 
-        vec_reference operator/(const_reference scalar) {
-            x /= scalar;
-            y /= scalar;
-            z /= scalar;
-            w /= scalar;
+        vec &operator*(value_type rhs) const {
+            return vec(x * rhs, y * rhs, z * rhs, w * rhs);
+        }
+
+        vec &operator/=(value_type rhs) {
+            x /= rhs;
+            y /= rhs;
+            z /= rhs;
+            w /= rhs;
 
             return *this;
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator-() const {
-            return vec{-x, -y, -z, -w};
+        vec &operator/(value_type rhs) const {
+            return vec(x / rhs, y / rhs, z / rhs, w / rhs);
         }
 
-        _NODISCARD _CONSTEXPR20 vec operator+() const {
-            return vec{x, y, z, w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator+(vec_const_reference rhs) const {
-            return vec{x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator-(vec_const_reference rhs) const {
-            return vec{x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator*(const_reference scalar) const {
-            return vec{x * scalar, y * scalar, z * scalar, w * scalar};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator/(const_reference scalar) const {
-            return vec{x / scalar, y / scalar, z / scalar, w / scalar};
-        }
-
-        _NODISCARD _CONSTEXPR20 value_type operator*(vec_const_reference rhs) const {
+        value_type operator*(vec const &rhs) const {
             return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
         }
 
-        _NODISCARD _CONSTEXPR20 double magnitude() const {
+        // Magnitude
+        _NODISCARD double magnitude() const {
             return std::sqrt(x * x + y * y + z * z + w * w);
         }
 
-        _NODISCARD _CONSTEXPR20 vec normalize() const {
-            return *this / magnitude();
-        }
-
-        // Cast Overload
-        explicit operator Vector2() const {
-            return Vector2{static_cast<float>(x), static_cast<float>(y)};
-        }
-
-        explicit operator Vector3() const {
-            return Vector3{static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
-        }
-
+        // Casting
         explicit operator Vector4() const {
-            return Vector4{static_cast<float>(x), static_cast<float>(y), static_cast<float>(y), static_cast<float>(w)};
-        }
-
-        // Mixed Operator Overload
-        _NODISCARD _CONSTEXPR20 vec operator+(const vector<3, T> &rhs) {
-            return vector<4, T>{x + rhs.x, y + rhs.y, z + rhs.z, w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator+(const vector<2, T> &rhs) {
-            return vector<4, T>{x + rhs.x, y + rhs.y, z, w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator-(const vector<3, T> &rhs) {
-            return vector<4, T>{x - rhs.x, y - rhs.y, z - rhs.z, w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator-(const vector<2, T> &rhs) {
-            return vector<4, T>{x - rhs.x, y - rhs.y, z, w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator*(const vector<3, T> &rhs) {
-            return vector<4, T>{x * rhs.x, y * rhs.y, z * rhs.z, w};
-        }
-
-        _NODISCARD _CONSTEXPR20 vec operator*(const vector<2, T> &rhs) {
-            return vector<4, T>{x * rhs.x, y * rhs.y, z, w};
-        }
-
-        // Comparison Operators
-        _NODISCARD _CONSTEXPR20 bool operator==(vec_const_reference rhs) const {
-            return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
-        }
-
-        _NODISCARD _CONSTEXPR20 bool operator!=(vec_const_reference rhs) const {
-            return x != rhs.x || y != rhs.y || z != rhs.z || w != rhs.w;
+            return Vector4{static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(w)};
         }
     };
 
-    // To String Functions
+    //
+    // Cross Product
+    //
 
-    template<arithmetic T>
-    inline std::ostream &operator<<(std::ostream &os, const vector<2, T> &v) {
-        os << std::format("{0}", v);
-        return os;
+    template<concepts::arithmetic T>
+    vector<T, 3> operator^(vector<T, 3> const &v, vector<T, 3> const &w) {
+        return vector<T, 3>(
+            v.y * w.z - v.z * w.y,
+            v.z * w.x - v.x * w.z,
+            v.x * w.y - v.y * w.x
+        );
     }
 
-    template<arithmetic T>
-    struct std::formatter<galileo::vector<2, T>> : std::formatter<std::string_view> {
-
-        auto format(const galileo::vector<2, T> &v, std::format_context &ctx) const {
-            return std::formatter<std::string_view>::format(
-                    std::format("vec2({0}, {1})", v.x, v.y),
-                    ctx
-            );
-        }
-    };
-
-    template<arithmetic T>
-    inline std::ostream &operator<<(std::ostream &os, const vector<3, T> &v) {
-        os << std::format("{0}", v);
-        return os;
+    template<concepts::arithmetic T>
+    vector<T, 3> operator^(vector<T, 2> const &v, vector<T, 2> const &w) {
+        return vector<T, 3>(
+            0,
+            0,
+            v.x * w.y - v.y * w.x
+        );
     }
 
-    template<arithmetic T>
-    struct std::formatter<galileo::vector<3, T>> : std::formatter<std::string_view> {
-
-        auto format(const galileo::vector<3, T> &v, std::format_context &ctx) const {
-            return std::formatter<std::string_view>::format(
-                    std::format("vec3({0}, {1}, {2})", v.x, v.y, v.z),
-                    ctx
-            );
-        }
-    };
-
-    template<arithmetic T>
-    inline std::ostream &operator<<(std::ostream &os, const vector<4, T> &v) {
-        os << std::format("{0}", v);
-        return os;
+    template<concepts::arithmetic T>
+    vector<T, 3> operator^(vector<T, 3> const &v, vector<T, 2> const &w) {
+        return vector<T, 3>(
+            0,
+            0,
+            v.x * w.y - v.y * w.x
+        );
     }
 
-    template<arithmetic T>
-    struct std::formatter<galileo::vector<4, T>> : std::formatter<std::string_view> {
+    template<concepts::arithmetic T>
+    vector<T, 3> operator^(vector<T, 2> const &v, vector<T, 3> const &w) {
+        return vector<T, 3>(
+            0,
+            0,
+            v.x * w.y - v.y * w.x
+        );
+    }
 
-        auto format(const galileo::vector<4, T> &v, std::format_context &ctx) const {
-            return std::formatter<std::string_view>::format(
-                    std::format("vec3({0}, {1}, {2}, {3})", v.x, v.y, v.z, v.w),
-                    ctx
-            );
-        }
-    };
-}
+GALILEO_END
 
-#endif //GALILEO_VECTOR_H
+#endif //VECTOR_H
