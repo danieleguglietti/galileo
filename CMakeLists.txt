@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(include/raylib)
 
-set(sources ${sources} src/main.cpp src/vector.h)
+set(sources ${sources} src/main.cpp src/utils.h
+        src/vector.h
+)
 add_executable(${PROJECT_NAME} ${sources})
 target_link_libraries(${PROJECT_NAME} raylib)
 
